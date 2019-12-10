@@ -5,16 +5,61 @@ Build status: experimentation
 ## Purpose of this repo
 
 This repos purpose is to provide a CloudFormation template which creates an infrastructure in AWS to run a Wordpress blog on it. The idea is to set all parameters in the master file, then run the master file and everything else happens automatically.
+
 The repo is organized with nested templates. Those templates are being pointed to on GitHub itself and are as stable as possible.
 
 ## Prerequisites
 
-The template is there to create the infrastructure but it will not create a domain name, relate it to a region and it will not create security key pairs. That is something that needs to be created manually beforehand. Follow these steps:
+The template is there to create the infrastructure but the following prerequisites need to be fulfilled manually:
 
-1. Go to the EC2 console and create a key pair. Download the key pair. You will need the name of your key pair later in the master file (or just name it Wordpress to use the default name).
-2. Create a domain name for your Wordpress blog with the registrar of your choice (AWS is also a registrar).
-3. Go to the Certificate Manager console and create a certificate (or one per purpose) that is to be used for (a) connecting the Bastion host (admin access) from where we connect to other hosts or databases (use `ssh` as a default), (b) connecting the web server to show the page (public access, use `www` as a default). The Certificate Manager asks you to validate the URLs by adding CNAME texts at your domain provider. If you used AWS as your registrar you can just add the texts into Route53 by clicking the buttons shown with the config.
+1. Create an S3 bucket with `aws s3 mb s3://<bucket name>` and copy the templates folder into this bucket with `aws s3 cp templates/* s3://<bucket name>`
+2. Create security key pair in the EC2 console and download it (the name is used in the parameter `KeyPairName`)
+3. Create an ACM Certificate for the CloudFront distribution in the us-east-1 region (the ARN is used in the parameter `CertificateARNCloudFront`)
+4. Create an ACM Certificate for the Elastic Loadbalancer in the region where the Wordpress installation is hosted or re-use #2 if it's the same region (the ARN is used in the parameter `CertificateARNLoadBalancer`)
 
-## Settings in master file
+TODO: Explain how to validate ownership of the domain
 
-TODO: Define settings
+## Run the master template
+
+Start building the infrastructure with the following AWS CLI statement within the folder of the `master.yaml` file:
+
+    aws cloudformation create-stack \
+        --stack-name master \
+        --template-body file://master.yaml \
+        --parameters \
+            ParameterKey=TemplateBucket,ParameterValue=cabcookie-templates \
+            ParameterKey=ClassBIP,ParameterValue=2 \
+            ParameterKey=Domain,ParameterValue=wp.cabcookie.de \
+            ParameterKey=CertificateARNCloudFront,ParameterValue=abc \
+            ParameterKey=CertificateARNLoadBalancer,ParameterValue=abc
+
+## Mandatory parameters
+
+### Settings for templates
+
+* `TemplateBucket`: S3 Bucket where to find the templates for CloudFormation
+
+### Settings for networking
+
+* `Domain`: domain to be used for the Wordpress blog
+* `CertificateARNCloudFront`: The ARN for the certificate used for CloudFront
+* `CertificateARNLoadBalancer`: The ARN for the certificate used for Elastic Load Balancer
+
+### Settings for EC2 instances
+
+No mandatory settings.
+
+## Optional parameters
+
+### Settings for templates
+
+No optional parameters.
+
+### Settings for networking
+
+* `SubdomainWordpress`: subdomain being used for the Wordpress page (default `blog` results into **blog**.domain.com)
+* `ClassBIP`: Class B of VPC (10.XXX.0.0/16) (default `0`)
+
+### Settings for EC2 instances
+
+* `KeyPairName`: Name of the security key pair generated in the EC2 console (default `Wordpress`)

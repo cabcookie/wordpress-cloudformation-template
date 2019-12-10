@@ -13,6 +13,73 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Master CloudFormation Template to create a reliable Wordpress page'
-# TODO: Define basic Parameters
-# TODO: Create a basic VPC
+Description: 'Master CloudFormation Template (nested) to create a reliable Wordpress page'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'Settings for templates'
+      Parameters:
+      - TemplateBucket
+    - Label:
+        default: 'Settings for networking'
+      Parameters:
+      - Domain
+      - SubdomainWordpress
+      - CertificateARNCloudFront
+      - CertificateARNLoadBalancer
+      - ClassBIP
+    - Label:
+        default: 'Settings for EC2 instances'
+      Parameters:
+      - KeyPairName
+Parameters:
+  TemplateBucket:
+    Description: 'S3 Bucket where to find the templates for CloudFormation'
+    Type: String
+  Domain:
+    Description: 'Domain to be used for the Wordpress blog'
+    Type: String
+  SubdomainWordpress:
+    Description: 'Subdomain being used for the Wordpress page (i.e. **blog**.domain.com)'
+    Type: String
+    Default: 'blog'
+  CertificateARNCloudFront:
+    Description: 'The ARN for the certificate used for CloudFront'
+    Type: String
+  CertificateARNLoadBalancer:
+    Description: 'The ARN for the certificate used for Elastic Load Balancer'
+    Type: String
+  ClassBIP:
+    Description: 'Class B of VPC (10.XXX.0.0/16)'
+    Type: Number
+    Default: 0
+    ConstraintDescription: 'Must be in the range [0-255]'
+    MinValue: 0
+    MaxValue: 255
+  KeyPairName:
+    Description: 'Name of the security key pair generated in the EC2 console'
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: Wordpress
+Resources:
+  CreateVPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'http://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/vpc.yaml'
+      Parameters:
+        ClassBIP: !Ref ClassBIP
+Outputs:
+  TemplateID:
+    Description: 'Master Template Create Wordpress Blog'
+    Value: 'master'
+  TemplateVersion:
+    Description: 'Master Template Version'
+    Value: '0.0.1'
+  StackName:
+    Description: 'Stack name'
+    Value: !Sub '${AWS::StackName}'
+  ClassBIP:
+    Description: 'Class B IP'
+    Value: !Ref ClassBIP
+
+# TODO: Create more templates to create Wordpress page
