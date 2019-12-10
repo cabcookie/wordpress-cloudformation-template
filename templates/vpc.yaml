@@ -30,14 +30,95 @@ Parameters:
     MinValue: 0
     MaxValue: 255
 Resources:
-  CreateVPC:
+  VPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: !Sub 10.${ClassBIP}.0.0/16
       EnableDnsSupport: true
+      EnableDnsHostnames: true
       Tags:
         - Key: Name
           Value: VPC
+#  VPCInternetGateway:
+#    Type: AWS::EC2::InternetGateway
+#    Properties:
+#      Tags:
+#        - Key: Name
+#          Value: !Sub 10.${ClassBIP}.0.0/16
+#  AttachGateway:
+#    Type: AWS::EC2::VPCGatewayAttachment
+#    Properties:
+#      VpcId: !Ref VPC
+#      InternetGatewayId: !Ref VPCInternetGateway
+  SubnetPublicA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [0, !GetAZs '']
+      VpcId: !Ref VPC
+      MapPublicIpOnLaunch: true
+      CidrBlock: !Sub 10.${ClassBIP}.0.0/19
+      Tags:
+        - Key: Type
+          Value: Public
+        - Key: AZ
+          Value: A
+  SubnetPublicB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [1, !GetAZs '']
+      VpcId: !Ref VPC
+      MapPublicIpOnLaunch: true
+      CidrBlock: !Sub 10.${ClassBIP}.32.0/19
+      Tags:
+        - Key: Type
+          Value: Public
+        - Key: AZ
+          Value: B
+  SubnetPublicC:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [2, !GetAZs '']
+      VpcId: !Ref VPC
+      MapPublicIpOnLaunch: true
+      CidrBlock: !Sub 10.${ClassBIP}.64.0/19
+      Tags:
+        - Key: Type
+          Value: Public
+        - Key: AZ
+          Value: C
+  SubnetPrivateA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [0, !GetAZs '']
+      VpcId: !Ref VPC
+      CidrBlock: !Sub 10.${ClassBIP}.96.0/19
+      Tags:
+        - Key: Type
+          Value: Private
+        - Key: AZ
+          Value: A
+  SubnetPrivateB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [1, !GetAZs '']
+      VpcId: !Ref VPC
+      CidrBlock: !Sub 10.${ClassBIP}.128.0/19
+      Tags:
+        - Key: Type
+          Value: Private
+        - Key: AZ
+          Value: B
+  SubnetPrivateC:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [2, !GetAZs '']
+      VpcId: !Ref VPC
+      CidrBlock: !Sub 10.${ClassBIP}.160.0/19
+      Tags:
+        - Key: Type
+          Value: Private
+        - Key: AZ
+          Value: C
 Outputs:
   TemplateID:
     Description: 'VPC with private and public subnets'
@@ -48,3 +129,6 @@ Outputs:
   StackName:
     Description: 'Stack name'
     Value: !Sub '${AWS::StackName}'
+  VPCId:
+    Description: 'ID of the created VPC'
+    Value: !Ref VPC
