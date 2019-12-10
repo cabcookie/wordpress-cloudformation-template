@@ -23,16 +23,8 @@ TODO: Explain how to validate ownership of the domain
 
 Start building the infrastructure with the following AWS CLI statement within the folder of the `master.yaml` file:
 
-    aws cloudformation create-stack \
-        --stack-name master \
-        --template-body file://master.yaml \
-        --parameters \
-            ParameterKey=TemplateBucket,ParameterValue=cabcookie-templates \
-            ParameterKey=ClassBIP,ParameterValue=2 \
-            ParameterKey=Domain,ParameterValue=wp.cabcookie.de \
-            ParameterKey=CertificateARNCloudFront,ParameterValue=abc \
-            ParameterKey=CertificateARNLoadBalancer,ParameterValue=abc
-
+    aws cloudformation create-stack --stack-name master --template-body file://master.yaml
+            
 ## Mandatory parameters
 
 ### Settings for templates

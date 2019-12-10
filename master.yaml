@@ -37,9 +37,11 @@ Parameters:
   TemplateBucket:
     Description: 'S3 Bucket where to find the templates for CloudFormation'
     Type: String
+    Default: cabcookie-templates
   Domain:
     Description: 'Domain to be used for the Wordpress blog'
     Type: String
+    Default: wp.cabcookie.de
   SubdomainWordpress:
     Description: 'Subdomain being used for the Wordpress page (i.e. **blog**.domain.com)'
     Type: String
@@ -47,9 +49,11 @@ Parameters:
   CertificateARNCloudFront:
     Description: 'The ARN for the certificate used for CloudFront'
     Type: String
+    Default: arn:aws:acm:us-east-1:876314442006:certificate/f1bba997-847a-46a3-a564-015c30e9301b
   CertificateARNLoadBalancer:
     Description: 'The ARN for the certificate used for Elastic Load Balancer'
     Type: String
+    Default: arn:aws:acm:eu-west-1:876314442006:certificate/5a000fa5-5aa8-40df-a7a8-bba9f4c5d9f4
   ClassBIP:
     Description: 'Class B of VPC (10.XXX.0.0/16)'
     Type: Number
