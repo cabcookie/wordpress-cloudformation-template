@@ -33,8 +33,8 @@ Metadata:
         default: 'Settings for EC2 instances'
       Parameters:
       - KeyPairName
-    -Label:
-        default: Settings for alarming & notifications
+    - Label:
+        default: 'Settings for alarming or notifications'
       Parameters:
       - Email
       - Phone
@@ -89,7 +89,7 @@ Resources:
   # TODO: Do I need to create IAM Users?
   Notification:
     Type: AWS::CloudFormation::Stack
-    Conditions: HasEmailOrPhone
+    Condition: HasEmailOrPhone
     Properties:
       TemplateURL: !Sub 'https://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/notifications.yaml'
       Parameters:
@@ -97,7 +97,7 @@ Resources:
         Phone: !Ref Phone
   Alarms:
     Type: AWS::CloudFormation::Stack
-    Conditions: HasEmailOrPhone
+    Condition: HasEmailOrPhone
     Properties:
       TemplateURL: !Sub 'https://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/notifications.yaml'
       Parameters:
@@ -105,17 +105,17 @@ Resources:
         Phone: !Ref Phone
   VPC:
     Type: AWS::CloudFormation::Stack
-    NotificationARNs:
-    - arn: !GetAtt Notification.Outputs.NotificationARNId
     Properties:
+      NotificationARNs:
+      - arn: !GetAtt Notification.Outputs.NotificationARNId
       TemplateURL: !Sub 'https://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/vpc.yaml'
       Parameters:
         IPNetwork: !Sub 10.${ClassBIP}
   Subnets:
     Type: AWS::CloudFormation::Stack
-    NotificationARNs:
-    - arn: !GetAtt Notification.Outputs.NotificationARNId
     Properties:
+      NotificationARNs:
+      - arn: !GetAtt Notification.Outputs.NotificationARNId
       TemplateURL: !Sub 'https://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/subnets.yaml'
       Parameters:
         IPNetwork: !GetAtt VPC.Outputs.VPCClassBNetwork
