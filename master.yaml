@@ -67,15 +67,14 @@ Parameters:
     Default: Wordpress
 Resources:
   # TODO: CreateNotificationARNs
-  # TODO: CreateIAMUsers:
   # TODO: CreateIAMRoles:
-  # TODO: CreateIAMRoles:
+  # TODO: CreateIAMGroups:
   CreateVPC:
     Type: AWS::CloudFormation::Stack
 #    NotificationARNs:
 #    - arn:
     Properties:
-      TemplateURL: !Sub 'http://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/vpc.yaml'
+      TemplateURL: !Sub 'https://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/vpc.yaml'
       Parameters:
         IPNetwork: !Sub 10.${ClassBIP}
   CreateSubnets:
@@ -83,7 +82,7 @@ Resources:
 #    NotificationARNs:
 #    - arn:
     Properties:
-      TemplateURL: !Sub 'http://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/subnets.yaml'
+      TemplateURL: !Sub 'https://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/subnets.yaml'
       Parameters:
         IPNetwork: !GetAtt CreateVPC.Outputs.VPCClassBNetwork
         VPC: !GetAtt CreateVPC.Outputs.VPCId

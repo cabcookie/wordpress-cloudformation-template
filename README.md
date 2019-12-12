@@ -23,7 +23,7 @@ TODO: Explain how to validate ownership of the domain
 
 Start building the infrastructure with the following AWS CLI statement within the folder of the `master.yaml` file:
 
-    aws cloudformation create-stack --stack-name master --template-body file://master.yaml
+    aws cloudformation create-stack --stack-name master --template-body file://master.yaml --capabilities CAPABILITY_IAM
 
 ## Mandatory parameters
 
