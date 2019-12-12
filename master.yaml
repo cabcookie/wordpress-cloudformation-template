@@ -33,6 +33,11 @@ Metadata:
         default: 'Settings for EC2 instances'
       Parameters:
       - KeyPairName
+    -Label:
+        default: Settings for alarming & notifications
+      Parameters:
+      - Email
+      - Phone
 Parameters:
   TemplateBucket:
     Description: 'S3 Bucket where to find the templates for CloudFormation'
@@ -65,27 +70,56 @@ Parameters:
     Description: 'Name of the security key pair generated in the EC2 console'
     Type: AWS::EC2::KeyPair::KeyName
     Default: Wordpress
+  Email:
+    Description: 'Email address to receive notifications'
+    Type: String
+    Default: ''
+  Phone:
+    Description: 'Phone number to receive notifications'
+    Type: String
+    Default: ''
+Conditions:
+  HasEmail: !Not [!Equals [!Ref Email, '']]
+  HasPhone: !Not [!Equals [!Ref Phone, '']]
+  HasEmailOrPhone: !Or [!Condition HasEmail, !Condition HasPhone]
 Resources:
   # TODO: CreateNotificationARNs
   # TODO: CreateIAMRoles:
   # TODO: CreateIAMGroups:
-  CreateVPC:
+  # TODO: Do I need to create IAM Users?
+  Notification:
     Type: AWS::CloudFormation::Stack
-#    NotificationARNs:
-#    - arn:
+    Conditions: HasEmailOrPhone
+    Properties:
+      TemplateURL: !Sub 'https://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/notifications.yaml'
+      Parameters:
+        Email: !Ref Email
+        Phone: !Ref Phone
+  Alarms:
+    Type: AWS::CloudFormation::Stack
+    Conditions: HasEmailOrPhone
+    Properties:
+      TemplateURL: !Sub 'https://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/notifications.yaml'
+      Parameters:
+        Email: !Ref Email
+        Phone: !Ref Phone
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    NotificationARNs:
+    - arn: !GetAtt Notification.Outputs.NotificationARNId
     Properties:
       TemplateURL: !Sub 'https://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/vpc.yaml'
       Parameters:
         IPNetwork: !Sub 10.${ClassBIP}
-  CreateSubnets:
+  Subnets:
     Type: AWS::CloudFormation::Stack
-#    NotificationARNs:
-#    - arn:
+    NotificationARNs:
+    - arn: !GetAtt Notification.Outputs.NotificationARNId
     Properties:
       TemplateURL: !Sub 'https://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/subnets.yaml'
       Parameters:
-        IPNetwork: !GetAtt CreateVPC.Outputs.VPCClassBNetwork
-        VPC: !GetAtt CreateVPC.Outputs.VPCId
+        IPNetwork: !GetAtt VPC.Outputs.VPCClassBNetwork
+        VPC: !GetAtt VPC.Outputs.VPCId
 Outputs:
   TemplateID:
     Description: 'Master Template Create Wordpress Blog'
@@ -98,24 +132,24 @@ Outputs:
     Value: !Sub '${AWS::StackName}'
   VPCId:
     Description: 'VPC ID'
-    Value: !GetAtt CreateVPC.Outputs.VPCId
+    Value: !GetAtt VPC.Outputs.VPCId
   SubnetPublicAId:
     Description: 'Subnet Public A ID'
-    Value: !GetAtt CreateSubnets.Outputs.SubnetPublicAId
+    Value: !GetAtt Subnets.Outputs.SubnetPublicAId
   SubnetPublicBId:
     Description: 'Subnet Public B ID'
-    Value: !GetAtt CreateSubnets.Outputs.SubnetPublicBId
+    Value: !GetAtt Subnets.Outputs.SubnetPublicBId
   SubnetPublicCId:
     Description: 'Subnet Public C ID'
-    Value: !GetAtt CreateSubnets.Outputs.SubnetPublicCId
+    Value: !GetAtt Subnets.Outputs.SubnetPublicCId
   SubnetPrivateAId:
     Description: 'Subnet Private A ID'
-    Value: !GetAtt CreateSubnets.Outputs.SubnetPrivateAId
+    Value: !GetAtt Subnets.Outputs.SubnetPrivateAId
   SubnetPrivateBId:
     Description: 'Subnet Private B ID'
-    Value: !GetAtt CreateSubnets.Outputs.SubnetPrivateBId
+    Value: !GetAtt Subnets.Outputs.SubnetPrivateBId
   SubnetPrivateCId:
     Description: 'Subnet Private C ID'
-    Value: !GetAtt CreateSubnets.Outputs.SubnetPrivateCId
+    Value: !GetAtt Subnets.Outputs.SubnetPrivateCId
 
 # TODO: Create more templates to create Wordpress page

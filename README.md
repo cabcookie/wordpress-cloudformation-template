@@ -41,6 +41,10 @@ Start building the infrastructure with the following AWS CLI statement within th
 
 No mandatory settings.
 
+### Settings for alarming & notifications
+
+No mandatory settings.
+
 ## Optional parameters
 
 ### Settings for templates
@@ -55,3 +59,8 @@ No optional parameters.
 ### Settings for EC2 instances
 
 * `KeyPairName`: Name of the security key pair generated in the EC2 console (default `Wordpress`)
+
+### Settings for alarming & notifications
+
+* `Email`: Email adress for notifications or alarms
+* `Phone`: Phone number for notifications or alarms

@@ -34,12 +34,15 @@ Parameters:
 Conditions:
   HasEmail: !Not [!Equals [!Ref Email, '']]
   HasPhone: !Not [!Equals [!Ref Phone, '']]
+  HasEmailOrPhone: !Or [!Condition HasEmail, !Condition HasPhone]
 Resources:
   Topic:
     Type: AWS::SNS::Topic
+    Condition: HasEmailOrPhone
     Properties: {}
   TopicPolicy:
     Type: AWS::SNS::TopicPolicy
+    Condition: HasEmailOrPhone
     Properties:
       PolicyDocument:
         Id: Id1
@@ -80,10 +83,11 @@ Outputs:
     Value: 'notification'
   TemplateVersion:
     Description: 'Notification Template Version'
-    Value: '0.1.0'
+    Value: '1.0.0'
   StackName:
     Description: 'Stack name'
     Value: !Sub '${AWS::StackName}'
   NotificationARNId:
     Description: 'ID of the created Notifications'
-    Value: !Ref VPC
+    Condition: HasEmailOrPhone
+    Value: !Ref Topic
