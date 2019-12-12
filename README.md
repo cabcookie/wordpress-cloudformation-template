@@ -12,7 +12,7 @@ The repo is organized with nested templates. Those templates are being pointed t
 
 The template is there to create the infrastructure but the following prerequisites need to be fulfilled manually:
 
-1. Create an S3 bucket with `aws s3 mb s3://<bucket name>` and copy the templates folder into this bucket with `aws s3 cp templates/* s3://<bucket name>`
+1. Create an S3 bucket with `aws s3 mb s3://<bucket name>` and copy the templates folder into this bucket with `aws s3 cp templates s3://<bucket name> --recursive`
 2. Create security key pair in the EC2 console and download it (the name is used in the parameter `KeyPairName`)
 3. Create an ACM Certificate for the CloudFront distribution in the us-east-1 region (the ARN is used in the parameter `CertificateARNCloudFront`)
 4. Create an ACM Certificate for the Elastic Loadbalancer in the region where the Wordpress installation is hosted or re-use #2 if it's the same region (the ARN is used in the parameter `CertificateARNLoadBalancer`)
@@ -24,7 +24,7 @@ TODO: Explain how to validate ownership of the domain
 Start building the infrastructure with the following AWS CLI statement within the folder of the `master.yaml` file:
 
     aws cloudformation create-stack --stack-name master --template-body file://master.yaml
-            
+
 ## Mandatory parameters
 
 ### Settings for templates

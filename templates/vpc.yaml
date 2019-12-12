@@ -13,27 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Template to create a VPC with private and public subnets'
+Description: 'Template to create a VPC'
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
     - Label:
         default: 'Settings for networking'
       Parameters:
-      - ClassBIP
+      - IPNetwork
 Parameters:
-  ClassBIP:
-    Description: 'Class B of VPC (10.XXX.0.0/16)'
-    Type: Number
-    Default: 0
-    ConstraintDescription: 'Must be in the range [0-255]'
-    MinValue: 0
-    MaxValue: 255
+  IPNetwork:
+    Description: 'Class B of VPC (XXX.XXX.0.0/16)'
+    Type: String
+    Default: '10.0'
 Resources:
   VPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: !Sub 10.${ClassBIP}.0.0/16
+      CidrBlock: !Sub ${IPNetwork}.0.0/16
       EnableDnsSupport: true
       EnableDnsHostnames: true
       Tags:
@@ -44,91 +41,25 @@ Resources:
 #    Properties:
 #      Tags:
 #        - Key: Name
-#          Value: !Sub 10.${ClassBIP}.0.0/16
+#          Value: !Sub ${IPNetwork}.0.0/16
 #  AttachGateway:
 #    Type: AWS::EC2::VPCGatewayAttachment
 #    Properties:
 #      VpcId: !Ref VPC
 #      InternetGatewayId: !Ref VPCInternetGateway
-  SubnetPublicA:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone: !Select [0, !GetAZs '']
-      VpcId: !Ref VPC
-      MapPublicIpOnLaunch: true
-      CidrBlock: !Sub 10.${ClassBIP}.0.0/19
-      Tags:
-        - Key: Type
-          Value: Public
-        - Key: AZ
-          Value: A
-  SubnetPublicB:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone: !Select [1, !GetAZs '']
-      VpcId: !Ref VPC
-      MapPublicIpOnLaunch: true
-      CidrBlock: !Sub 10.${ClassBIP}.32.0/19
-      Tags:
-        - Key: Type
-          Value: Public
-        - Key: AZ
-          Value: B
-  SubnetPublicC:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone: !Select [2, !GetAZs '']
-      VpcId: !Ref VPC
-      MapPublicIpOnLaunch: true
-      CidrBlock: !Sub 10.${ClassBIP}.64.0/19
-      Tags:
-        - Key: Type
-          Value: Public
-        - Key: AZ
-          Value: C
-  SubnetPrivateA:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone: !Select [0, !GetAZs '']
-      VpcId: !Ref VPC
-      CidrBlock: !Sub 10.${ClassBIP}.96.0/19
-      Tags:
-        - Key: Type
-          Value: Private
-        - Key: AZ
-          Value: A
-  SubnetPrivateB:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone: !Select [1, !GetAZs '']
-      VpcId: !Ref VPC
-      CidrBlock: !Sub 10.${ClassBIP}.128.0/19
-      Tags:
-        - Key: Type
-          Value: Private
-        - Key: AZ
-          Value: B
-  SubnetPrivateC:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone: !Select [2, !GetAZs '']
-      VpcId: !Ref VPC
-      CidrBlock: !Sub 10.${ClassBIP}.160.0/19
-      Tags:
-        - Key: Type
-          Value: Private
-        - Key: AZ
-          Value: C
 Outputs:
   TemplateID:
-    Description: 'VPC with private and public subnets'
+    Description: 'VPC'
     Value: 'vpc'
   TemplateVersion:
-    Description: 'Master Template Version'
-    Value: '0.0.1'
+    Description: 'VPC Template Version'
+    Value: '0.5.0'
   StackName:
     Description: 'Stack name'
     Value: !Sub '${AWS::StackName}'
   VPCId:
-    Description: 'ID of the created VPC'
+    Description: 'IP of the created VPC'
     Value: !Ref VPC
+  VPCClassBNetwork:
+    Description: 'Class B network of the VPC'
+    Value: !Ref IPNetwork

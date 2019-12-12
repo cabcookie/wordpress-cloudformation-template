@@ -66,12 +66,27 @@ Parameters:
     Type: AWS::EC2::KeyPair::KeyName
     Default: Wordpress
 Resources:
+  # TODO: CreateNotificationARNs
+  # TODO: CreateIAMUsers:
+  # TODO: CreateIAMRoles:
+  # TODO: CreateIAMRoles:
   CreateVPC:
     Type: AWS::CloudFormation::Stack
+#    NotificationARNs:
+#    - arn:
     Properties:
       TemplateURL: !Sub 'http://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/vpc.yaml'
       Parameters:
-        ClassBIP: !Ref ClassBIP
+        IPNetwork: !Sub 10.${ClassBIP}
+  CreateSubnets:
+    Type: AWS::CloudFormation::Stack
+#    NotificationARNs:
+#    - arn:
+    Properties:
+      TemplateURL: !Sub 'http://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/subnets.yaml'
+      Parameters:
+        IPNetwork: !GetAtt CreateVPC.Outputs.VPCClassBNetwork
+        VPC: !GetAtt CreateVPC.Outputs.VPCId
 Outputs:
   TemplateID:
     Description: 'Master Template Create Wordpress Blog'
@@ -82,8 +97,26 @@ Outputs:
   StackName:
     Description: 'Stack name'
     Value: !Sub '${AWS::StackName}'
-  ClassBIP:
-    Description: 'Class B IP'
-    Value: !Ref ClassBIP
+  VPCId:
+    Description: 'VPC ID'
+    Value: !GetAtt CreateVPC.Outputs.VPCId
+  SubnetPublicAId:
+    Description: 'Subnet Public A ID'
+    Value: !GetAtt CreateSubnets.Outputs.SubnetPublicAId
+  SubnetPublicBId:
+    Description: 'Subnet Public B ID'
+    Value: !GetAtt CreateSubnets.Outputs.SubnetPublicBId
+  SubnetPublicCId:
+    Description: 'Subnet Public C ID'
+    Value: !GetAtt CreateSubnets.Outputs.SubnetPublicCId
+  SubnetPrivateAId:
+    Description: 'Subnet Private A ID'
+    Value: !GetAtt CreateSubnets.Outputs.SubnetPrivateAId
+  SubnetPrivateBId:
+    Description: 'Subnet Private B ID'
+    Value: !GetAtt CreateSubnets.Outputs.SubnetPrivateBId
+  SubnetPrivateCId:
+    Description: 'Subnet Private C ID'
+    Value: !GetAtt CreateSubnets.Outputs.SubnetPrivateCId
 
 # TODO: Create more templates to create Wordpress page

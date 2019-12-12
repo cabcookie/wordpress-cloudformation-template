@@ -1,0 +1,142 @@
+---
+# Copyright 2019 cabcookie.de
+#
+# Licensed under the GNU GENERAL PUBLIC LICENSE Version 3.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://raw.githubusercontent.com/cabcookie/wordpress-cloudformation-template/master/LICENSE
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Template to create subnets within a VPC'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'Settings for networking'
+      Parameters:
+      - IPNetwork
+      - VPC
+Parameters:
+  IPNetwork:
+    Description: 'Network of the VPC (XXX.XXX.0.0/16)'
+    Type: String
+    Default: '10.0'
+  VPC:
+    Description: 'VPC to build the subnets in'
+    Type: String
+Resources:
+  SubnetPublicA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [0, !GetAZs '']
+      VpcId: !Ref VPC
+      MapPublicIpOnLaunch: true
+      CidrBlock: !Sub ${IPNetwork}.0.0/19
+      Tags:
+        - Key: Name
+          Value: SubnetPublicA
+        - Key: Type
+          Value: Public
+        - Key: AZ
+          Value: A
+  SubnetPublicB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [1, !GetAZs '']
+      VpcId: !Ref VPC
+      MapPublicIpOnLaunch: true
+      CidrBlock: !Sub ${IPNetwork}.32.0/19
+      Tags:
+        - Key: Name
+          Value: SubnetPublicB
+        - Key: Type
+          Value: Public
+        - Key: AZ
+          Value: B
+  SubnetPublicC:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [2, !GetAZs '']
+      VpcId: !Ref VPC
+      MapPublicIpOnLaunch: true
+      CidrBlock: !Sub ${IPNetwork}.64.0/19
+      Tags:
+        - Key: Name
+          Value: SubnetPublicC
+        - Key: Type
+          Value: Public
+        - Key: AZ
+          Value: C
+  SubnetPrivateA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [0, !GetAZs '']
+      VpcId: !Ref VPC
+      CidrBlock: !Sub ${IPNetwork}.96.0/19
+      Tags:
+        - Key: Name
+          Value: SubnetPrivateA
+        - Key: Type
+          Value: Private
+        - Key: AZ
+          Value: A
+  SubnetPrivateB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [1, !GetAZs '']
+      VpcId: !Ref VPC
+      CidrBlock: !Sub ${IPNetwork}.128.0/19
+      Tags:
+        - Key: Name
+          Value: SubnetPrivateB
+        - Key: Type
+          Value: Private
+        - Key: AZ
+          Value: B
+  SubnetPrivateC:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [2, !GetAZs '']
+      VpcId: !Ref VPC
+      CidrBlock: !Sub ${IPNetwork}.160.0/19
+      Tags:
+        - Key: Name
+          Value: SubnetPrivateC
+        - Key: Type
+          Value: Private
+        - Key: AZ
+          Value: C
+Outputs:
+  TemplateID:
+    Description: 'Private and public subnets within a VPC'
+    Value: 'subnets'
+  TemplateVersion:
+    Description: 'Subnet Template Version'
+    Value: '1.0.0'
+  StackName:
+    Description: 'Stack name'
+    Value: !Sub '${AWS::StackName}'
+  SubnetPublicAId:
+    Description: 'Subnet Public A ID'
+    Value: !Ref SubnetPublicA
+  SubnetPublicBId:
+    Description: 'Subnet Public B ID'
+    Value: !Ref SubnetPublicB
+  SubnetPublicCId:
+    Description: 'Subnet Public C ID'
+    Value: !Ref SubnetPublicC
+  SubnetPrivateAId:
+    Description: 'Subnet Private A ID'
+    Value: !Ref SubnetPrivateA
+  SubnetPrivateBId:
+    Description: 'Subnet Private B ID'
+    Value: !Ref SubnetPrivateB
+  SubnetPrivateCId:
+    Description: 'Subnet Private C ID'
+    Value: !Ref SubnetPrivateC
