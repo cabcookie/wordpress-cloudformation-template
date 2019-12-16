@@ -107,7 +107,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       NotificationARNs:
-      - arn: !GetAtt Notification.Outputs.NotificationARNId
+      - !GetAtt Notification.Outputs.NotificationARNId
       TemplateURL: !Sub 'https://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/vpc.yaml'
       Parameters:
         IPNetwork: !Sub 10.${ClassBIP}
@@ -115,7 +115,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       NotificationARNs:
-      - arn: !GetAtt Notification.Outputs.NotificationARNId
+      - !GetAtt Notification.Outputs.NotificationARNId
       TemplateURL: !Sub 'https://${TemplateBucket}.s3-${AWS::Region}.amazonaws.com/subnets.yaml'
       Parameters:
         IPNetwork: !GetAtt VPC.Outputs.VPCClassBNetwork
